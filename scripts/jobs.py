@@ -8,6 +8,8 @@ jobhist_uri = str(sys.argv[1])
 jobs_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs"
 jobs_resp = urllib2.urlopen(jobs_req)
 jobs_json_obj = json.load(jobs_resp)
+no_jobs = len(jobs_json_obj['jobs']['job'])
+counter = 1
 for i in jobs_json_obj['jobs']['job']:
 	job_state = i['state']
 	valid_states = ["SUCCEEDED", "FAILED", "KILL_WAIT", "KILLED"]
