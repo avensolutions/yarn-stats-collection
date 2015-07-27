@@ -30,6 +30,6 @@ for i in jobs_json_obj['jobs']['job']:
 		sql = "INSERT IGNORE INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_HR + "','" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
 		cur.execute(sql)
 		# get job_info
-		subprocess.Popen(["python", "job_info.py", jobhist_uri, job_id])
+		subprocess.Popen(["python", "scripts/job_info.py", jobhist_uri, job_id])
 		# get tasks
-		subprocess.Popen(["python", "tasks.py", jobhist_uri, job_id])
+		subprocess.Popen(["python", "scripts/tasks.py", jobhist_uri, job_id])

@@ -21,9 +21,13 @@ for i in tasks_json_obj['tasks']['task']:
 	state = i['state']
 	type = i['type']
 	successfulAttempt = i['successfulAttempt']
-	numberOfAttempts = successfulAttempt.split('_')[5]
+	numberOfAttemptsList = successfulAttempt.split('_')
+	if len(numberOfAttemptsList) > 4:
+		numberOfAttempts = numberOfAttemptsList[5]
+	else:
+		numberOfAttempts = -1
 	# insert results into tasks table
 	sql = "INSERT IGNORE INTO tasks SELECT '" + task_id + "','" + task_startTime_HR + "'," + str(runTime) + "," + str(progress) + ",'" + state + "','" + type + "'," + str(numberOfAttempts)
 	cur.execute(sql)
 	# get task_counters
-	subprocess.Popen(["python", "task_counters.py", jobhist_uri, job_id, task_id])
+	subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
