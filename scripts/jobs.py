@@ -1,4 +1,4 @@
-import sys, json, time, urllib2, MySQLdb, subprocess
+import sys, os, json, time, urllib2, MySQLdb, subprocess
 db = MySQLdb.connect(host="localhost",
                      user="jobstats",
                       passwd="jobstats",
@@ -33,6 +33,10 @@ for i in jobs_json_obj['jobs']['job']:
 		subprocess.Popen(["python", "scripts/job_info.py", jobhist_uri, job_id])
 		# get tasks
 		subprocess.Popen(["python", "scripts/tasks.py", jobhist_uri, job_id])
-		time.sleep(0.05)
+		# to avoid 'Too many connections' error
+		time.sleep(0.01)
+		sys.stdout.write("\r" + str(counter) + "/" + str(no_jobs))
+		sys.stdout.flush()
+		counter = counter + 1
 cur.close()
 db.close()

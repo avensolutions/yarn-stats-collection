@@ -26,3 +26,5 @@ sql = "INSERT IGNORE INTO job_info SELECT '" + job_id + "'," + str(avgMapTime) +
 cur.execute(sql)
 cur.close()
 db.close()
+# to avoid 'Too many connections' error
+time.sleep(0.01)
