@@ -28,4 +28,5 @@ for i in task_json_obj['jobTaskCounters']['taskCounterGroup']:
 task_counters_file.close()
 sql = "LOAD DATA INFILE 'tmp_task_counters' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY ','"
 cur.execute(sql)
-
+cur.close()
+db.close()

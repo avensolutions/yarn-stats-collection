@@ -33,3 +33,6 @@ for i in jobs_json_obj['jobs']['job']:
 		subprocess.Popen(["python", "scripts/job_info.py", jobhist_uri, job_id])
 		# get tasks
 		subprocess.Popen(["python", "scripts/tasks.py", jobhist_uri, job_id])
+		time.sleep(1)
+cur.close()
+db.close()

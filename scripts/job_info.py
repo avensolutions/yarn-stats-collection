@@ -24,3 +24,5 @@ successfulMapAttempts = job_info_json_obj['job']['successfulMapAttempts']
 # insert results into job_info table
 sql = "INSERT IGNORE INTO job_info SELECT '" + job_id + "'," + str(avgMapTime) + "," + str(avgReduceTime) + "," + str(avgShuffleTime) + "," + str(avgMergeTime) + "," + str(failedReduceAttempts) + "," + str(killedReduceAttempts) + "," + str(successfulReduceAttempts) + "," + str(failedMapAttempts) + "," + str(killedMapAttempts) + "," + str(successfulMapAttempts)
 cur.execute(sql)
+cur.close()
+db.close()

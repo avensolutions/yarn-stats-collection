@@ -35,3 +35,5 @@ try:
 		subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
 except Exception as e:
 	print e.message
+cur.close()
+db.close()
