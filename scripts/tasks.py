@@ -1,18 +1,19 @@
 import sys, json, time, urllib2, MySQLdb, subprocess, warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-db = MySQLdb.connect(host="localhost",
-                     user="jobstats",
-                      passwd="jobstats",
-                      db="jobstats")
-cur = db.cursor()
-
-jobhist_uri = str(sys.argv[1])
-job_id = str(sys.argv[2])
-
-tasks_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs/" + job_id + "/tasks"
-tasks_resp = urllib2.urlopen(tasks_req)
-tasks_json_obj = json.load(tasks_resp)
 try:
+	db = MySQLdb.connect(host="localhost",
+						 user="jobstats",
+						  passwd="jobstats",
+						  db="jobstats")
+	cur = db.cursor()
+
+	jobhist_uri = str(sys.argv[1])
+	job_id = str(sys.argv[2])
+
+	tasks_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs/" + job_id + "/tasks"
+	tasks_resp = urllib2.urlopen(tasks_req)
+	tasks_json_obj = json.load(tasks_resp)
+
 	for i in tasks_json_obj['tasks']['task']:
 		task_id = i['id']
 		task_startTime = i['startTime']
@@ -33,9 +34,9 @@ try:
 		cur.execute(sql)
 		# get task_counters
 		subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
+	cur.close()
+	db.close()
+	# to avoid 'Too many connections' error
+	time.sleep(0.01)
 except Exception as e:
 	print e.message
-cur.close()
-db.close()
-# to avoid 'Too many connections' error
-time.sleep(0.01)
