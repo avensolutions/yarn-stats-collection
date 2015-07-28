@@ -1,5 +1,5 @@
 import sys, json, time, urllib2, MySQLdb, subprocess, warnings
-warnings.filterwarnings("ignore", category="DeprecationWarning")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 db = MySQLdb.connect(host="localhost",
                      user="jobstats",
                       passwd="jobstats",
@@ -37,3 +37,5 @@ except Exception as e:
 	print e.message
 cur.close()
 db.close()
+# to avoid 'Too many connections' error
+time.sleep(0.01)
