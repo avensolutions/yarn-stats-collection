@@ -1,4 +1,4 @@
-import sys, json, time, urllib2, MySQLdb
+import sys, json, time, urllib2, MySQLdb, warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 try:
 	db = MySQLdb.connect(host="localhost",
