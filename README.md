@@ -55,11 +55,12 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,task_id varchar(255)
 	,counterGroupName varchar(255)
 	,counter varchar(255)
-	,value int
+	,value bigint
 	);
 
 	ALTER TABLE task_counters ADD INDEX task_id_idx (task_id);
 	ALTER TABLE task_counters ADD INDEX job_id_idx (job_id);
+	ALTER TABLE task_counters ADD INDEX counter_idx (counter_id);
 
 ## Usage
 
