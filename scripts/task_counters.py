@@ -2,11 +2,11 @@ import os, time, sys, json, urllib2, MySQLdb, warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 try:
-#	db = MySQLdb.connect(host="localhost",
-#						 user="jobstats",
-#						  passwd="jobstats",
-#						  db="jobstats")
-#	cur = db.cursor()
+	db = MySQLdb.connect(host="localhost",
+							 user="jobstats",
+							  passwd="jobstats",
+							  db="jobstats")
+	cur = db.cursor()
 
 	jobhist_uri = str(sys.argv[1])
 	job_id = str(sys.argv[2])
@@ -30,12 +30,15 @@ try:
 			task_counters_file.write(job_task_str + "," + counterGroupName + "," + counter + "," + str(value) + "\n")
 	# bulk insert counter file into task_counters table
 	task_counters_file.close()
-#	sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY ','"
-#	cur.execute(sql)
-#	cur.close()
-#	db.close()
-#	os.remove(task_counters_filename)
+	sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY ','"
+	cur.execute(sql)
+	cur.close()
+	db.close()
 	# to avoid 'Too many connections' error
-#	time.sleep(0.01)
+	time.sleep(0.1)
+except MySQLdb.Warning:
+	print "DB Warning check output file " + task_counters_filename
 except Exception as e:
 	print e.message
+else:
+	os.remove(task_counters_filename)
