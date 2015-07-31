@@ -1,6 +1,6 @@
 import os, time, sys, json, urllib2, MySQLdb, warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
+fieldterm = "<fieldterm>"
 try:
 	db = MySQLdb.connect(host="localhost",
 							 user="jobstats",
@@ -19,7 +19,7 @@ try:
 	# create counter file
 	task_counters_filename = "tmp_task_counters_" + str(int(time.time()))
 	task_counters_file = open(task_counters_filename,'w', 1)
-	job_task_str = job_id + "," + task_id
+	job_task_str = job_id + fieldterm + task_id
 	for i in task_json_obj['jobTaskCounters']['taskCounterGroup']:
 		counterGroupName = i['counterGroupName']
 		for ii in i['counter']:
@@ -27,18 +27,17 @@ try:
 			value = ii['value']
 			# update counter file
 			#job_id,task_id,counterGroupName,counter,value
-			task_counters_file.write(job_task_str + "," + counterGroupName + "," + counter + "," + str(value) + "\n")
+			task_counters_file.write(job_task_str + fieldterm + counterGroupName + fieldterm + counter + fieldterm + str(value) + "\n")
 	# bulk insert counter file into task_counters table
 	task_counters_file.close()
-	sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY ','"
+	sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY '" + fieldterm + "'"
 	cur.execute(sql)
 	cur.close()
 	db.close()
+	os.remove(task_counters_filename)
 	# to avoid 'Too many connections' error
 	time.sleep(0.1)
 except MySQLdb.Warning:
-	print "DB Warning check output file " + task_counters_filename
+	print "DB Warning : " + task_req
 except Exception as e:
 	print e.message
-else:
-	os.remove(task_counters_filename)
