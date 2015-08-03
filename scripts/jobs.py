@@ -1,9 +1,13 @@
 import sys, os, json, time, urllib2, MySQLdb, subprocess
-db = MySQLdb.connect(host="localhost",
-                     user="jobstats",
-                      passwd="jobstats",
-                      db="jobstats")
-cur = db.cursor()
+import pika
+#db = MySQLdb.connect(host="localhost",
+#                     user="jobstats",
+#                      passwd="jobstats",
+#                      db="jobstats")
+#cur = db.cursor()
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+channel.queue_declare(queue='yarn-stats')
 jobhist_uri = str(sys.argv[1])
 jobs_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs"
 jobs_resp = urllib2.urlopen(jobs_req)
@@ -30,7 +34,10 @@ for i in jobs_json_obj['jobs']['job']:
 		runTime = (job_finishTime - job_startTime)/1000
 		# insert results into jobs table	
 		sql = "INSERT IGNORE INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_HR + "','" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
-		cur.execute(sql)
+		channel.basic_publish(exchange='',
+                      routing_key='yarn-stats',
+                      body=sql)
+		#cur.execute(sql)
 		# get job_info
 		subprocess.Popen(["python", "scripts/job_info.py", jobhist_uri, job_id])
 		# get tasks
@@ -40,5 +47,6 @@ for i in jobs_json_obj['jobs']['job']:
 		sys.stdout.write("\r" + str(counter) + "/" + str(no_jobs))
 		sys.stdout.flush()
 		counter = counter + 1
-cur.close()
-db.close()
+#cur.close()
+#db.close()
+connection.close()
