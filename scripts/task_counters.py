@@ -3,11 +3,11 @@ import MySQLdb
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 fieldterm = "<fieldterm>"
 try:
-	db = MySQLdb.connect(host="localhost",
-							 user="jobstats",
-							  passwd="jobstats",
-							  db="jobstats")
-	cur = db.cursor()
+	#db = MySQLdb.connect(host="localhost",
+	#						 user="jobstats",
+	#						  passwd="jobstats",
+	#						  db="jobstats")
+	#cur = db.cursor()
 	#connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 	#channel = connection.channel()
 	#channel.queue_declare(queue='yarn-stats')
@@ -21,27 +21,33 @@ try:
 	task_json_obj = json.load(task_resp)
 
 	# create counter file
-	task_counters_filename = "tmp_task_counters_" + str(int(time.time()))
-	task_counters_file = open(task_counters_filename,'w', 1)
+	#task_counters_filename = "tmp_task_counters_" + str(int(time.time()))
+	#task_counters_file = open(task_counters_filename,'w', 1)
 	job_task_str = job_id + fieldterm + task_id
-	for i in task_json_obj['jobTaskCounters']['taskCounterGroup']:
-		counterGroupName = i['counterGroupName']
-		for ii in i['counter']:
-			counter = ii['name']
-			value = ii['value']
-			# update counter file
-			#job_id,task_id,counterGroupName,counter,value
-			task_counters_file.write(job_task_str + fieldterm + counterGroupName + fieldterm + counter + fieldterm + str(value) + "\n")
-			#sql = "INSERT INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counter + "'," + str(value)
-			#channel.basic_publish(exchange='',
-			#	routing_key='yarn-stats',
-			#	body=sql)
-	# bulk insert counter file into task_counters table
-	task_counters_file.close()
+	if task_json_obj.has_key('jobTaskCounters'):
+		jobTaskCounters = task_json_obj['jobTaskCounters']
+		if jobTaskCounters.has_key('taskCounterGroup'):
+			taskCounterGroup = jobTaskCounters['taskCounterGroup']
+				#for i in task_json_obj['jobTaskCounters']['taskCounterGroup']:
+				for i in taskCounterGroup:
+					counterGroupName = i['counterGroupName']
+					for ii in i['counter']:
+						counter = ii['name']
+						value = ii['value']
+						print counter + '=' + str(value)
+						# update counter file
+						#job_id,task_id,counterGroupName,counter,value
+						#task_counters_file.write(job_task_str + fieldterm + counterGroupName + fieldterm + counter + fieldterm + str(value) + "\n")
+						#sql = "INSERT INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counter + "'," + str(value)
+						#channel.basic_publish(exchange='',
+						#	routing_key='yarn-stats',
+						#	body=sql)
+				# bulk insert counter file into task_counters table
+	#task_counters_file.close()
 	sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY '" + fieldterm + "'"
-	cur.execute(sql)
-	cur.close()
-	db.close()
+	#cur.execute(sql)
+	#cur.close()
+	#db.close()
 	#os.remove(task_counters_filename)
 	# to avoid 'Too many connections' error
 	#connection.close()
@@ -49,5 +55,12 @@ try:
 except MySQLdb.Warning:
 	print "DB Warning : " + task_counters_filename
 except Exception as e:
-	#print e.message
-	print "Exception: " + task_counters_filename
+	print e.message
+	json.dump(task_json_obj, task_counters_file, sort_keys=True, indent=4, separators=(',', ': '))
+	#print "Exception: " + task_counters_filename
+	
+	dict = {'Name': 'Zara', 'Age': 7}
+
+print "Value : %s" %  dict.has_key('Age')
+print "Value : %s" %  dict.has_key('Sex')
+	
