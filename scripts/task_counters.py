@@ -36,7 +36,7 @@ try:
 					# update counter file
 					#job_id,task_id,counterGroupName,counter,value
 					#task_counters_file.write(job_task_str + fieldterm + counterGroupName + fieldterm + counter + fieldterm + str(value) + "\n")
-					sql = "INSERT INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counter + "'," + str(value)
+					sql = "INSERT INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counterGroupName + "','" + counter + "'," + str(value)
 					cur.execute(sql)
 					#channel.basic_publish(exchange='',
 					#	routing_key='yarn-stats',
