@@ -5,7 +5,9 @@ import sys, os, json, time, urllib2, pika, subprocess
 #                      passwd="jobstats",
 #                      db="jobstats")
 #cur = db.cursor()
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', retry_delay=1, socket_timeout=100))
+
+
 channel = connection.channel()
 channel.queue_declare(queue='yarn-stats')
 jobhist_uri = str(sys.argv[1])
