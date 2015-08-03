@@ -40,7 +40,7 @@ try:
 			body=sql)
 		#cur.execute(sql)
 		# get task_counters
-		#subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
+		subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
 	#cur.close()
 	#db.close()
 	# to avoid 'Too many connections' error
