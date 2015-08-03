@@ -3,11 +3,11 @@ import MySQLdb
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 fieldterm = "<fieldterm>"
 try:
-	#db = MySQLdb.connect(host="localhost",
-	#						 user="jobstats",
-	#						  passwd="jobstats",
-	#						  db="jobstats")
-	#cur = db.cursor()
+	db = MySQLdb.connect(host="localhost",
+							 user="jobstats",
+							  passwd="jobstats",
+							  db="jobstats")
+	cur = db.cursor()
 	#connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 	#channel = connection.channel()
 	#channel.queue_declare(queue='yarn-stats')
@@ -28,26 +28,25 @@ try:
 		jobTaskCounters = task_json_obj['jobTaskCounters']
 		if jobTaskCounters.has_key('taskCounterGroup'):
 			taskCounterGroup = jobTaskCounters['taskCounterGroup']
-			#for i in task_json_obj['jobTaskCounters']['taskCounterGroup']:
 			for i in taskCounterGroup:
 				counterGroupName = i['counterGroupName']
 				for ii in i['counter']:
 					counter = ii['name']
 					value = ii['value']
-					print counter + '=' + str(value)
 					# update counter file
 					#job_id,task_id,counterGroupName,counter,value
 					#task_counters_file.write(job_task_str + fieldterm + counterGroupName + fieldterm + counter + fieldterm + str(value) + "\n")
-					#sql = "INSERT INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counter + "'," + str(value)
+					sql = "INSERT INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counter + "'," + str(value)
+					cur.execute(sql)
 					#channel.basic_publish(exchange='',
 					#	routing_key='yarn-stats',
 					#	body=sql)
 			# bulk insert counter file into task_counters table
 	#task_counters_file.close()
-	sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY '" + fieldterm + "'"
+	#sql = "LOAD DATA LOCAL INFILE '" + task_counters_filename + "' INTO TABLE jobstats.task_counters FIELDS TERMINATED BY '" + fieldterm + "'"
 	#cur.execute(sql)
-	#cur.close()
-	#db.close()
+	cur.close()
+	db.close()
 	#os.remove(task_counters_filename)
 	# to avoid 'Too many connections' error
 	#connection.close()
