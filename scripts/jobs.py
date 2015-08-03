@@ -1,5 +1,5 @@
-import sys, os, json, time, urllib2, MySQLdb, subprocess
-import pika
+import sys, os, json, time, urllib2, pika, subprocess
+#import MySQLdb
 #db = MySQLdb.connect(host="localhost",
 #                     user="jobstats",
 #                      passwd="jobstats",

@@ -1,11 +1,15 @@
-import sys, json, time, urllib2, MySQLdb, warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+import sys, json, time, urllib2, pika, warnings
+#import MySQLdb
+#warnings.filterwarnings("ignore", category=DeprecationWarning)
 try:
-	db = MySQLdb.connect(host="localhost",
-						 user="jobstats",
-						  passwd="jobstats",
-						  db="jobstats")
-	cur = db.cursor()
+	#db = MySQLdb.connect(host="localhost",
+	#					 user="jobstats",
+	#					  passwd="jobstats",
+	#					  db="jobstats")
+	#cur = db.cursor()
+	connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+	channel = connection.channel()
+	channel.queue_declare(queue='yarn-stats')
 
 	jobhist_uri = str(sys.argv[1])
 	job_id = str(sys.argv[2])
@@ -25,10 +29,14 @@ try:
 	successfulMapAttempts = job_info_json_obj['job']['successfulMapAttempts']
 	# insert results into job_info table
 	sql = "INSERT IGNORE INTO job_info SELECT '" + job_id + "'," + str(avgMapTime) + "," + str(avgReduceTime) + "," + str(avgShuffleTime) + "," + str(avgMergeTime) + "," + str(failedReduceAttempts) + "," + str(killedReduceAttempts) + "," + str(successfulReduceAttempts) + "," + str(failedMapAttempts) + "," + str(killedMapAttempts) + "," + str(successfulMapAttempts)
-	cur.execute(sql)
-	cur.close()
-	db.close()
+	channel.basic_publish(exchange='',
+		  routing_key='yarn-stats',
+		  body=sql)
+	#cur.execute(sql)
+	#cur.close()
+	#db.close()
 	# to avoid 'Too many connections' error
 	time.sleep(0.01)
+	connection.close()
 except Exception as e:
 	print e.message
