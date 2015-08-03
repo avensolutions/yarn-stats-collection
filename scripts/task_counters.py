@@ -50,7 +50,7 @@ try:
 	#os.remove(task_counters_filename)
 	# to avoid 'Too many connections' error
 	#connection.close()
-	time.sleep(0.1)
+	#time.sleep(0.1)
 except MySQLdb.Warning:
 	print "DB Warning : " + task_counters_filename
 except Exception as e:
