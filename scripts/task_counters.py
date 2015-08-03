@@ -56,11 +56,5 @@ except MySQLdb.Warning:
 	print "DB Warning : " + task_counters_filename
 except Exception as e:
 	print e.message
-	json.dump(task_json_obj, task_counters_file, sort_keys=True, indent=4, separators=(',', ': '))
-	#print "Exception: " + task_counters_filename
-	
-	dict = {'Name': 'Zara', 'Age': 7}
-
-print "Value : %s" %  dict.has_key('Age')
-print "Value : %s" %  dict.has_key('Sex')
-	
+	#json.dump(task_json_obj, task_counters_file, sort_keys=True, indent=4, separators=(',', ': '))
+	#print "Exception: " + task_counters_filename	
