@@ -36,7 +36,7 @@ try:
 	#cur.close()
 	#db.close()
 	# to avoid 'Too many connections' error
-	time.sleep(0.01)
 	connection.close()
+	time.sleep(0.01)
 except Exception as e:
 	print e.message

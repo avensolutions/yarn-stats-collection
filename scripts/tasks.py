@@ -1,12 +1,16 @@
-import sys, json, time, urllib2, MySQLdb, subprocess, warnings
+import sys, json, time, urllib2, pika, subprocess, warnings
+#import MySQLdb
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 try:
-	db = MySQLdb.connect(host="localhost",
-						 user="jobstats",
-						  passwd="jobstats",
-						  db="jobstats")
-	cur = db.cursor()
-
+	#db = MySQLdb.connect(host="localhost",
+	#					 user="jobstats",
+	#					  passwd="jobstats",
+	#					  db="jobstats")
+	#cur = db.cursor()
+	connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+	channel = connection.channel()
+	channel.queue_declare(queue='yarn-stats')
+	
 	jobhist_uri = str(sys.argv[1])
 	job_id = str(sys.argv[2])
 
@@ -31,12 +35,16 @@ try:
 			numberOfAttempts = -1
 		# insert results into tasks table
 		sql = "INSERT IGNORE INTO tasks SELECT '" + task_id + "','" + task_startTime_HR + "'," + str(runTime) + "," + str(progress) + ",'" + state + "','" + type + "'," + str(numberOfAttempts)
-		cur.execute(sql)
+		channel.basic_publish(exchange='',
+			routing_key='yarn-stats',
+			body=sql)
+		#cur.execute(sql)
 		# get task_counters
-		subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
-	cur.close()
-	db.close()
+		#subprocess.Popen(["python", "scripts/task_counters.py", jobhist_uri, job_id, task_id])
+	#cur.close()
+	#db.close()
 	# to avoid 'Too many connections' error
+	connection.close()	
 	time.sleep(0.01)
 except Exception as e:
 	print e.message
