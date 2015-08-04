@@ -7,7 +7,7 @@ Python scripts used to collect YARN job and task statistics and counters from a 
 The following tables need to be created in MySQL in a database named 'jobstats':
 
 	USE jobstats;
-	CREATE TABLE jobs 
+	CREATE TABLE IF NOT EXISTS jobs 
 	(
 	job_id varchar(255) PRIMARY KEY
 	,job_sumbitTime datetime
@@ -22,8 +22,8 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,reducesTotal int
 	,reducesCompleted int
 	);
-	
-	CREATE TABLE job_info
+
+	CREATE TABLE IF NOT EXISTS job_info
 	(
 	job_id varchar(255) PRIMARY KEY
 	,avgMapTime int
@@ -37,8 +37,8 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,killedMapAttempts int
 	,successfulMapAttempts int
 	);
-	
-	CREATE TABLE tasks
+
+	CREATE TABLE IF NOT EXISTS tasks
 	(
 	task_id varchar(255) PRIMARY KEY
 	,task_startTime datetime
@@ -48,19 +48,27 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,type varchar(255)
 	,numberOfAttempts int
 	);
-	
-	CREATE TABLE task_counters
+
+	CREATE TABLE IF NOT EXISTS task_counters
 	(
 	job_id varchar(255)
 	,task_id varchar(255)
 	,counterGroupName varchar(255)
 	,counter varchar(255)
 	,value bigint
+	,PRIMARY KEY (job_id, task_id, counter)
 	);
 
 	ALTER TABLE task_counters ADD INDEX task_id_idx (task_id);
 	ALTER TABLE task_counters ADD INDEX job_id_idx (job_id);
-	ALTER TABLE task_counters ADD INDEX counter_idx (counter_id);
+	ALTER TABLE task_counters ADD INDEX counter_idx (counter);
+
+	CREATE TABLE IF NOT EXISTS job_conf
+	(
+	job_id varchar(255) PRIMARY KEY
+	,propertyName varchar(1024)
+	,propertyValue varchar(61440)
+	);
 
 ## Usage
 
