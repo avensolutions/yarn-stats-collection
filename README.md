@@ -65,10 +65,13 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 
 	CREATE TABLE IF NOT EXISTS job_conf
 	(
-	job_id varchar(255) PRIMARY KEY
+	job_id varchar(255)
 	,propertyName varchar(1024)
 	,propertyValue varchar(61440)
+	,PRIMARY KEY (job_id, propertyName)
 	);
+
+	ALTER TABLE job_conf ADD INDEX job_conf_job_id_idx (job_id);	
 
 ## Usage
 

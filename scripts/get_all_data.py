@@ -30,18 +30,9 @@ def get_job_conf( job_id ):
 					name = i['name']
 					value = i['value']
 					# insert results into task_counters table
-					sql = "INSERT IGNORE INTO task_counters SELECT '" + job_id + "','" + task_id + "','" + counterGroupName + "','" + counter + "'," + str(value)
+					sql = "INSERT IGNORE INTO job_conf SELECT '" + job_id + "','" + propertyName + "','" + str(propertyValue) + "'"
 					cur.execute(sql)
 	return;
-
-	CREATE TABLE IF NOT EXISTS job_conf
-	(
-	job_id varchar(255) PRIMARY KEY
-	,propertyName varchar(1024)
-	,propertyValue varchar(61440)
-	);
-
-
 	
 def get_task_info( job_id ):	
 	tasks_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs/" + job_id + "/tasks"
