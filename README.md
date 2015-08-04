@@ -41,6 +41,7 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	CREATE TABLE IF NOT EXISTS tasks
 	(
 	task_id varchar(255) PRIMARY KEY
+	,job_id varchar(255)
 	,task_startTime datetime
 	,runTime int
 	,progress int
@@ -66,7 +67,7 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	CREATE TABLE IF NOT EXISTS job_conf
 	(
 	job_id varchar(255)
-	,propertyName varchar(1024)
+	,propertyName varchar(512)
 	,propertyValue varchar(61440)
 	,PRIMARY KEY (job_id, propertyName)
 	);

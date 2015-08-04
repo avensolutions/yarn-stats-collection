@@ -28,9 +28,9 @@ def get_job_conf( job_id ):
 			if property_obj is not None:
 				for i in property_obj:
 					name = i['name']
-					value = i['value']
+					value = i['value'].replace("'", "")
 					# insert results into task_counters table
-					sql = "INSERT IGNORE INTO job_conf SELECT '" + job_id + "','" + propertyName + "','" + str(propertyValue) + "'"
+					sql = "INSERT IGNORE INTO job_conf SELECT '" + job_id + "','" + name + "','" + str(value) + "'"
 					cur.execute(sql)
 	return;
 	
@@ -60,7 +60,7 @@ def get_task_info( job_id ):
 						else:
 							numberOfAttempts = -1
 						# insert results into tasks table
-						sql = "INSERT IGNORE INTO tasks SELECT '" + task_id + "','" + task_startTime_HR + "'," + str(runTime) + "," + str(progress) + ",'" + state + "','" + type + "'," + str(numberOfAttempts)
+						sql = "INSERT IGNORE INTO tasks SELECT '" + job_id + "','" + task_id + "','" + task_startTime_HR + "'," + str(runTime) + "," + str(progress) + ",'" + state + "','" + type + "'," + str(numberOfAttempts)
 						cur.execute(sql)
 						# get task_counters
 						task_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs/" + job_id + "/tasks/" + task_id + '/counters'
@@ -123,7 +123,7 @@ for i in jobs_json_obj['jobs']['job']:
 		# get job_info
 		get_job_info(job_id)
 		# get job conf
-		#get_job_conf(job_id)
+		get_job_conf(job_id)
 		# get tasks and task counters
 		get_task_info(job_id)
 		if show_progress == 'true':
