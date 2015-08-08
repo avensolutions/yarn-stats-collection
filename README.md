@@ -1,6 +1,6 @@
 # yarn-stats-collection
 
-Python scripts used to collect YARN job and task statistics and counters from a Hadoop cluster and store the information in a MySQL database.
+Python scripts used to collect YARN job and task statistics and counters from a Hadoop cluster, store the information in a MySQL database and post defined metrics to DataDog.
 
 ## Prerequisites
 
@@ -11,6 +11,9 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	(
 	job_id varchar(255) PRIMARY KEY
 	,job_sumbitTime datetime
+	,job_sumbitTime_date date
+	,job_sumbitTime_hour int
+	,job_sumbitTime_hour_ts bigint
 	,job_name varchar(255)
 	,queue varchar(255)
 	,job_user varchar(255)
@@ -22,7 +25,7 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,reducesTotal int
 	,reducesCompleted int
 	);
-
+	
 	CREATE TABLE IF NOT EXISTS job_info
 	(
 	job_id varchar(255) PRIMARY KEY
@@ -71,8 +74,18 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,propertyValue varchar(61440)
 	,PRIMARY KEY (job_id, propertyName)
 	);
-
-	ALTER TABLE job_conf ADD INDEX job_conf_job_id_idx (job_id);	
+	
+	ALTER TABLE job_conf ADD INDEX job_conf_job_id_idx (job_id);
+	
+	CREATE TABLE metrics
+	(
+	metric_name VARCHAR(255)
+	,metric_date date
+	,metric_hour tinyint
+	,metric_timestamp bigint
+	,metric_value bigint
+	,posted boolean NOT NULL default 0
+	);
 
 ## Usage
 

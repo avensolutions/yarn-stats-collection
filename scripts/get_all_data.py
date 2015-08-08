@@ -85,7 +85,7 @@ def get_task_info( job_id ):
 #	
 # Main code	
 #
-import sys, os, json, time, urllib2, MySQLdb
+import sys, os, json, datetime, time, urllib2, MySQLdb, calendar
 db = MySQLdb.connect(host="localhost",
 	user="jobstats",
 	passwd="jobstats",
@@ -100,32 +100,51 @@ jobs_json_obj = json.load(jobs_resp)
 no_jobs = len(jobs_json_obj['jobs']['job'])
 counter = 1
 for i in jobs_json_obj['jobs']['job']:
-	job_state = i['state']
-	valid_states = ["SUCCEEDED", "FAILED", "KILL_WAIT", "KILLED"]
-	if job_state in valid_states:
-		job_submitTime = i['submitTime']
-		job_sumbitTime_HR = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(job_submitTime/1000))
-		job_startTime = i['startTime']
-		job_finishTime = i['finishTime']
-		job_id = i['id']
-		job_name = i['name'].replace("'", "")
-		queue = i['queue']
-		user = i['user']
-		mapsTotal = i['mapsTotal']
-		mapsCompleted = i['mapsCompleted']
-		reducesTotal = i['reducesTotal']
-		reducesCompleted = i['reducesCompleted']
-		queueTime = (job_startTime - job_submitTime)/1000
-		runTime = (job_finishTime - job_startTime)/1000
-		# insert results into jobs table
-		sql = "INSERT IGNORE INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_HR + "','" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
-		cur.execute(sql)
-		# get job_info
-		get_job_info(job_id)
-		# get job conf
-		get_job_conf(job_id)
-		# get tasks and task counters
-		get_task_info(job_id)
+	job_id = i['id']
+	# check if we have the job_id already
+	sql = "SELECT 1 FROM jobs WHERE job_id = '" + job_id + "'"
+	cur.execute(sql)
+	numrows = int(cur.rowcount)
+	if numrows == 1:
+		job_state = i['state']
+		valid_states = ["SUCCEEDED", "FAILED", "KILL_WAIT", "KILLED"]
+		if job_state in valid_states:
+			job_submitTime_ts_ms = i['submitTime']
+			job_submitTime_ts_s = job_submitTime_ts_ms/1000
+			# job_sumbitTime
+			job_sumbitTime_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(job_submitTime_ts_s))
+			# get hour, date and hourly timestamp for publishing metrics
+			job_submitTime_dt = datetime.datetime.fromtimestamp(job_submitTime_ts_s)
+			# job_sumbitTime_date
+			job_date = job_submitTime_dt.date()
+			# job_sumbitTime_hour
+			job_hour = job_submitTime_dt.hour
+			job_dateWithHour_str = str(job_date) + ' ' + str(job_hour) + ':00:00'
+			job_dateWithHour_dt = datetime.datetime.strptime(job_dateWithHour_str, "%Y-%m-%d %H:%M:%S")
+			job_dateWithHour_ts = time.mktime(job_dateWithHour_dt.timetuple())
+			# job_sumbitTime_hour_ts
+			job_dateWithHour_ts_i = int(job_dateWithHour_ts)
+			job_startTime = i['startTime']
+			job_finishTime = i['finishTime']
+			job_name = i['name'].replace("'", "")
+			queue = i['queue']
+			user = i['user']
+			mapsTotal = i['mapsTotal']
+			mapsCompleted = i['mapsCompleted']
+			reducesTotal = i['reducesTotal']
+			reducesCompleted = i['reducesCompleted']
+			queueTime = (job_startTime - job_submitTime)/1000
+			runTime = (job_finishTime - job_startTime)/1000
+			# insert results into jobs table
+			sql = "INSERT INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_str + "','" + str(job_sumbitTime_date) + "'," + str(job_sumbitTime_hour) + "," + str(job_sumbitTime_hour_ts) + ",'" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
+			print(sql)
+			cur.execute(sql)
+			# get job_info
+			get_job_info(job_id)
+			# get job conf
+			get_job_conf(job_id)
+			# get tasks and task counters
+			get_task_info(job_id)
 		if show_progress == 'true':
 			sys.stdout.write("\r" + str(counter) + "/" + str(no_jobs))
 			sys.stdout.flush()
