@@ -60,7 +60,7 @@ def get_task_info( job_id ):
 						else:
 							numberOfAttempts = -1
 						# insert results into tasks table
-						sql = "INSERT IGNORE INTO tasks SELECT '" + job_id + "','" + task_id + "','" + task_startTime_HR + "'," + str(runTime) + "," + str(progress) + ",'" + state + "','" + type + "'," + str(numberOfAttempts)
+						sql = "INSERT IGNORE INTO tasks SELECT '" + task_id + "','" + job_id + "','" + task_startTime_HR + "'," + str(runTime) + "," + str(progress) + ",'" + state + "','" + type + "'," + str(numberOfAttempts)
 						cur.execute(sql)
 						# get task_counters
 						task_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs/" + job_id + "/tasks/" + task_id + '/counters'
@@ -105,7 +105,7 @@ for i in jobs_json_obj['jobs']['job']:
 	sql = "SELECT 1 FROM jobs WHERE job_id = '" + job_id + "'"
 	cur.execute(sql)
 	numrows = int(cur.rowcount)
-	if numrows == 1:
+	if numrows == 0:
 		job_state = i['state']
 		valid_states = ["SUCCEEDED", "FAILED", "KILL_WAIT", "KILLED"]
 		if job_state in valid_states:
@@ -133,11 +133,10 @@ for i in jobs_json_obj['jobs']['job']:
 			mapsCompleted = i['mapsCompleted']
 			reducesTotal = i['reducesTotal']
 			reducesCompleted = i['reducesCompleted']
-			queueTime = (job_startTime - job_submitTime)/1000
+			queueTime = (job_startTime - job_submitTime_ts_ms)/1000
 			runTime = (job_finishTime - job_startTime)/1000
 			# insert results into jobs table
-			sql = "INSERT INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_str + "','" + str(job_sumbitTime_date) + "'," + str(job_sumbitTime_hour) + "," + str(job_sumbitTime_hour_ts) + ",'" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
-			print(sql)
+			sql = "INSERT INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_str + "','" + str(job_date) + "'," + str(job_hour) + "," + str(job_dateWithHour_ts_i) + ",'" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
 			cur.execute(sql)
 			# get job_info
 			get_job_info(job_id)

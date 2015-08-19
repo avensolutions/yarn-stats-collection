@@ -87,6 +87,42 @@ The following tables need to be created in MySQL in a database named 'jobstats':
 	,posted boolean NOT NULL default 0
 	);
 
+	CREATE FUNCTION get_median_run_time (v_job_sumbitTime_hour_ts BIGINT)
+	RETURNS FLOAT DETERMINISTIC
+	RETURN 
+	(
+	SELECT AVG(t1.runTime) FROM (
+	SELECT @rownum:=@rownum+1 as `row_number`, d.runTime, d.job_sumbitTime_hour_ts
+	  FROM jobs d,  (SELECT @rownum:=0) r
+	  WHERE job_sumbitTime_hour_ts = v_job_sumbitTime_hour_ts
+	  ORDER BY d.runTime
+	) as t1, 
+	(
+	  SELECT count(*) as total_rows
+	  FROM jobs d WHERE job_sumbitTime_hour_ts = v_job_sumbitTime_hour_ts
+	) as t2
+	WHERE t1.job_sumbitTime_hour_ts = v_job_sumbitTime_hour_ts AND
+	t1.row_number in ( floor((total_rows+1)/2), floor((total_rows+2)/2) )
+	);	
+	
+	CREATE FUNCTION get_median_queue_time (v_job_sumbitTime_hour_ts BIGINT)
+	RETURNS FLOAT DETERMINISTIC
+	RETURN 
+	(
+	SELECT AVG(t1.queueTime) FROM (
+	SELECT @rownum:=@rownum+1 as `row_number`, d.queueTime, d.job_sumbitTime_hour_ts
+	  FROM jobs d,  (SELECT @rownum:=0) r
+	  WHERE job_sumbitTime_hour_ts = v_job_sumbitTime_hour_ts
+	  ORDER BY d.queueTime
+	) as t1, 
+	(
+	  SELECT count(*) as total_rows
+	  FROM jobs d WHERE job_sumbitTime_hour_ts = v_job_sumbitTime_hour_ts
+	) as t2
+	WHERE t1.job_sumbitTime_hour_ts = v_job_sumbitTime_hour_ts AND
+	t1.row_number in ( floor((total_rows+1)/2), floor((total_rows+2)/2) )
+	);
+	
 ## Usage
 
 	sh start-here.sh <job_history_server_uri>
