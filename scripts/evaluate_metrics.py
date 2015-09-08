@@ -2,7 +2,9 @@
 # Evaluate Hourly Job Metrics	
 #
 
-import json, MySQLdb
+import sys, json, MySQLdb
+
+show_progress = str(sys.argv[1])
 
 db = MySQLdb.connect(host="localhost",
 	user="jobstats",
