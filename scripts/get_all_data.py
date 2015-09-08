@@ -1,3 +1,7 @@
+#	
+# Get all application & job data	
+#
+
 def get_job_info( job_id ):
 	job_info_req = "http://" + jobhist_uri + "/ws/v1/history/mapreduce/jobs/" + job_id
 	job_info_resp = urllib2.urlopen(job_info_req)
@@ -111,18 +115,18 @@ for i in jobs_json_obj['jobs']['job']:
 		if job_state in valid_states:
 			job_submitTime_ts_ms = i['submitTime']
 			job_submitTime_ts_s = job_submitTime_ts_ms/1000
-			# job_sumbitTime
-			job_sumbitTime_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(job_submitTime_ts_s))
+			# job_submitTime
+			job_submitTime_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(job_submitTime_ts_s))
 			# get hour, date and hourly timestamp for publishing metrics
 			job_submitTime_dt = datetime.datetime.fromtimestamp(job_submitTime_ts_s)
-			# job_sumbitTime_date
+			# job_submitTime_date
 			job_date = job_submitTime_dt.date()
-			# job_sumbitTime_hour
+			# job_submitTime_hour
 			job_hour = job_submitTime_dt.hour
 			job_dateWithHour_str = str(job_date) + ' ' + str(job_hour) + ':00:00'
 			job_dateWithHour_dt = datetime.datetime.strptime(job_dateWithHour_str, "%Y-%m-%d %H:%M:%S")
 			job_dateWithHour_ts = time.mktime(job_dateWithHour_dt.timetuple())
-			# job_sumbitTime_hour_ts
+			# job_submitTime_hour_ts
 			job_dateWithHour_ts_i = int(job_dateWithHour_ts)
 			job_startTime = i['startTime']
 			job_finishTime = i['finishTime']
@@ -136,7 +140,7 @@ for i in jobs_json_obj['jobs']['job']:
 			queueTime = (job_startTime - job_submitTime_ts_ms)/1000
 			runTime = (job_finishTime - job_startTime)/1000
 			# insert results into jobs table
-			sql = "INSERT INTO jobs SELECT '" + job_id + "','" + job_sumbitTime_str + "','" + str(job_date) + "'," + str(job_hour) + "," + str(job_dateWithHour_ts_i) + ",'" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
+			sql = "INSERT INTO jobs SELECT '" + job_id + "','" + job_submitTime_str + "','" + str(job_date) + "'," + str(job_hour) + "," + str(job_dateWithHour_ts_i) + ",'" + job_name + "','" + queue + "','" + user + "','" + job_state + "'," + str(queueTime) + "," + str(runTime) + "," + str(mapsTotal) + "," + str(mapsCompleted) + "," + str(reducesTotal) + "," + str(reducesCompleted)
 			cur.execute(sql)
 			# get job_info
 			get_job_info(job_id)
